@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comta — Enregistrement d'activité</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ÉCRAN 1 : Choix de l'activité -->
+  <div id="screen-choice" class="screen active">
+    <div class="card">
+      <div class="logo">
+        <div class="logo-icon">⚡</div>
+        <h1>COMTA</h1>
+        <p class="subtitle">Enregistrement d'activité</p>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-patrol" onclick="selectActivity('Patrouille')">
+          <span class="btn-icon">🛡️</span>
+          <span class="btn-label">PATROUILLE</span>
+        </button>
+        <button class="btn btn-training" onclick="selectActivity('Formation')">
+          <span class="btn-icon">📚</span>
+          <span class="btn-label">FORMATION</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 2 : Saisie du matricule -->
+  <div id="screen-matricule" class="screen">
+    <div class="card">
+      <button class="btn-back" onclick="goBack()">← Retour</button>
+      <div class="activity-badge" id="activity-badge"></div>
+      <h2>Votre matricule</h2>
+      <p class="hint">Saisissez votre matricule (01 – 90)</p>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="matricule-input"
+          min="1"
+          max="90"
+          placeholder="Ex : 07"
+          inputmode="numeric"
+          autocomplete="off"
+        />
+      </div>
+      <div id="error-msg" class="error-msg hidden"></div>
+      <button class="btn btn-validate" onclick="submitActivity()">
+        Valider
+      </button>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 3 : Confirmation -->
+  <div id="screen-success" class="screen">
+    <div class="card">
+      <div class="success-icon">✅</div>
+      <h2>Activité enregistrée<br />avec succès !</h2>
+      <div id="success-details" class="success-details"></div>
+      <button class="btn btn-new" onclick="restart()">
+        + Nouvelle activité
+      </button>
+    </div>
+  </div>
+
+  <!-- SPINNER -->
+  <div id="spinner" class="spinner-overlay hidden">
+    <div class="spinner"></div>
+    <p>Enregistrement…</p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
