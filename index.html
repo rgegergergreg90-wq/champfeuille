@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Champ — Enregistrement de contrat</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ÉCRAN 1 : Accueil -->
+  <div id="screen-home" class="screen active">
+    <div class="card">
+      <div class="logo">
+        <div class="logo-icon">🏟️</div>
+        <h1>CHAMP</h1>
+        <p class="subtitle">Enregistrement de contrat</p>
+      </div>
+      <button class="btn btn-primary" onclick="startContract()">
+        <span class="btn-icon">📋</span>
+        <span class="btn-label">NOUVEAU CONTRAT</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 2 : Prénom + Nom -->
+  <div id="screen-identite" class="screen">
+    <div class="card">
+      <button class="btn-back" onclick="goTo('screen-home')">← Retour</button>
+      <div class="step-indicator">
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+      </div>
+      <h2>Identité du client</h2>
+      <div class="input-row">
+        <div class="input-wrapper">
+          <label class="field-label" for="prenom-input">Prénom</label>
+          <input type="text" id="prenom-input" placeholder="Ex : Daniel" autocomplete="off" autocapitalize="words" />
+        </div>
+        <div class="input-wrapper">
+          <label class="field-label" for="nom-input">Nom</label>
+          <input type="text" id="nom-input" placeholder="Ex : Lorus" autocomplete="off" autocapitalize="words" />
+        </div>
+      </div>
+      <div id="error-identite" class="error-msg hidden"></div>
+      <button class="btn btn-primary" onclick="submitIdentite()">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 3 : Matricule -->
+  <div id="screen-matricule" class="screen">
+    <div class="card">
+      <button class="btn-back" onclick="goTo('screen-identite')">← Retour</button>
+      <div class="step-indicator">
+        <div class="step-dot done"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+      </div>
+      <h2>Matricule</h2>
+      <p class="hint">Ex : M-02 · CP-23 · R1</p>
+      <div class="input-wrapper input-big">
+        <input type="text" id="matricule-input" placeholder="M-02" autocomplete="off" autocapitalize="characters" />
+      </div>
+      <div id="error-matricule" class="error-msg hidden"></div>
+      <button class="btn btn-primary" onclick="submitMatricule()">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 4 : Durée -->
+  <div id="screen-duree" class="screen">
+    <div class="card">
+      <button class="btn-back" onclick="goTo('screen-matricule')">← Retour</button>
+      <div class="step-indicator">
+        <div class="step-dot done"></div>
+        <div class="step-dot done"></div>
+        <div class="step-dot active"></div>
+      </div>
+      <h2>Durée du contrat</h2>
+      <div class="btn-group-grid">
+        <button class="btn btn-duree" onclick="submitDuree(1)">
+          <span class="duree-val">1h</span>
+          <span class="prix-tag">15 000 $</span>
+        </button>
+        <button class="btn btn-duree" onclick="submitDuree(2)">
+          <span class="duree-val">2h</span>
+          <span class="prix-tag">30 000 $</span>
+        </button>
+        <button class="btn btn-duree" onclick="submitDuree(3)">
+          <span class="duree-val">3h</span>
+          <span class="prix-tag">45 000 $</span>
+        </button>
+        <button class="btn btn-duree" onclick="submitDuree(4)">
+          <span class="duree-val">4h</span>
+          <span class="prix-tag">60 000 $</span>
+        </button>
+        <button class="btn btn-duree" onclick="submitDuree(5)">
+          <span class="duree-val">5h</span>
+          <span class="prix-tag">75 000 $</span>
+        </button>
+        <button class="btn btn-duree" onclick="submitDuree(6)">
+          <span class="duree-val">6h</span>
+          <span class="prix-tag">90 000 $</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 5 : Succès -->
+  <div id="screen-success" class="screen">
+    <div class="card">
+      <div class="success-icon">✅</div>
+      <h2>Contrat enregistré<br />avec succès !</h2>
+      <div id="success-details" class="success-details"></div>
+      <button class="btn btn-new" onclick="restart()">
+        + Nouveau contrat
+      </button>
+    </div>
+  </div>
+
+  <!-- SPINNER -->
+  <div id="spinner" class="spinner-overlay hidden">
+    <div class="spinner"></div>
+    <p>Enregistrement…</p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
