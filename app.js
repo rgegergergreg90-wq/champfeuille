@@ -1,6 +1,6 @@
 // ── Configuration ───────────────────────────────────────────────
 // Remplacez par l'URL de déploiement de votre Apps Script
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxI8fiCpZoICuhfg9vOZpkf09LDWKQPesFpPW5843C6rN14P4nECdybbRhgYoIuOG3yog/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDQAf3CVLe6KWn7pef3Kw_li047LjaR2poRHZIaN7QSwHDccU1ReAUQ4A9c_QngsYLlg/exec';
 
 // ── État ─────────────────────────────────────────────────────────
 let state = { prenom: '', nom: '', matricule: '', duree: 0 };
