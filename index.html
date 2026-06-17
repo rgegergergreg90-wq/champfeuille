@@ -1,129 +1,367 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Champ — Enregistrement de contrat</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>CHAMP — Contrats</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: { DEFAULT: '#22c55e', dim: 'rgba(34,197,94,0.1)', ring: 'rgba(34,197,94,0.2)' }
+          },
+          keyframes: {
+            fadeUp:  { from: { opacity:'0', transform:'translateY(8px)' }, to: { opacity:'1', transform:'translateY(0)' } },
+            pop:     { from: { opacity:'0', transform:'scale(0.8)' },      to: { opacity:'1', transform:'scale(1)' } },
+            pulse2:  { '0%,100%': { opacity:'1' }, '50%': { opacity:'0.4' } },
+          },
+          animation: {
+            fadeUp: 'fadeUp .2s ease both',
+            pop:    'pop .3s cubic-bezier(0.34,1.56,0.64,1) both',
+            pulse2: 'pulse2 2s ease infinite',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .screen { display: none; position: fixed; inset: 0; z-index: 20; align-items: center; justify-content: center; padding: 1.25rem; background: #080808; }
+    .screen.active { display: flex; }
+    input:-webkit-autofill { -webkit-box-shadow: 0 0 0 40px #0f0f0f inset !important; -webkit-text-fill-color: #ededed !important; }
+
+  </style>
 </head>
-<body>
+<body class="min-h-dvh bg-[#080808] text-[#ededed] flex items-center justify-center p-5 antialiased">
 
-  <!-- ÉCRAN 1 : Accueil -->
+  <audio id="bg-audio" src="Cayo%20Domine%20(1).mp3" loop></audio>
+
+  <!-- ── ACCUEIL ── -->
   <div id="screen-home" class="screen active">
-    <div class="card">
-      <div class="logo">
-        <div class="logo-icon">🏟️</div>
-        <h1>CHAMP</h1>
-        <p class="subtitle">Enregistrement de contrat</p>
-      </div>
-      <button class="btn btn-primary" onclick="startContract()">
-        <span class="btn-icon">📋</span>
-        <span class="btn-label">NOUVEAU CONTRAT</span>
+  <div class="flex flex-col items-center gap-3 w-full max-w-sm">
+
+  <!-- Lecteur audio -->
+  <div class="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 flex flex-col gap-2">
+    <!-- Titre + play/pause -->
+    <div class="flex items-center gap-3">
+      <button id="btn-play" onclick="toggleAudio()"
+        class="w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center shrink-0 transition-all duration-150 active:scale-95">
+        <i id="play-icon" data-lucide="play" class="w-3.5 h-3.5 text-black"></i>
       </button>
+      <div class="flex flex-col min-w-0">
+        <span class="text-xs font-semibold text-neutral-200 truncate">Cayo Domine</span>
+        <span class="text-[10px] text-neutral-600">Champ de Feuille Milice</span>
+      </div>
+      <div class="ml-auto flex items-center gap-1 shrink-0">
+        <span id="audio-current" class="text-[10px] text-neutral-500 tabular-nums">0:00</span>
+        <span class="text-[10px] text-neutral-700">/</span>
+        <span id="audio-total" class="text-[10px] text-neutral-600 tabular-nums">0:00</span>
+      </div>
+    </div>
+    <!-- Barre de progression -->
+    <div class="relative h-1 bg-neutral-800 rounded-full cursor-pointer group" id="seek-bar" onclick="seekAudio(event)">
+      <div id="seek-fill" class="h-full bg-emerald-500 rounded-full transition-none" style="width:0%"></div>
+      <div id="seek-thumb" class="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-1/2" style="left:0%"></div>
+    </div>
+    <!-- Volume -->
+    <div class="flex items-center gap-2 pt-0.5">
+      <button onclick="toggleMute()" class="text-neutral-500 hover:text-neutral-300 transition-colors">
+        <i id="vol-icon" data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+      </button>
+      <div class="relative flex-1 h-1 bg-neutral-800 rounded-full cursor-pointer group" id="vol-bar" onclick="setVolume(event)">
+        <div id="vol-fill" class="h-full bg-neutral-500 rounded-full transition-none" style="width:100%"></div>
+        <div id="vol-thumb" class="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-1/2" style="left:100%"></div>
+      </div>
     </div>
   </div>
 
-  <!-- ÉCRAN 2 : Prénom + Nom -->
+  <div class="w-full rounded-2xl border border-neutral-800 bg-neutral-900 p-8 flex flex-col items-center gap-6 animate-fadeUp" style="box-shadow:0 0 60px rgba(0,0,0,.6)">
+
+    <!-- Icône + titre -->
+    <div class="flex flex-col items-center gap-3">
+      <img src="pant.png" alt="Champ" class="w-20 h-20 object-contain select-none" style="filter:invert(1)" draggable="false" />
+      <div class="text-center">
+        <h1 class="text-xl font-black tracking-[.08em] uppercase text-neutral-100">Contrats Champ de Feuille Milice</h1>
+        <p class="text-sm text-neutral-500 mt-1">Enregistrement de contrat</p>
+      </div>
+    </div>
+
+    <!-- Bouton -->
+    <div class="w-full flex flex-col gap-3">
+      <button onclick="startContract()"
+        class="w-full flex items-center justify-center gap-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm py-4 px-4 transition-all duration-150 active:scale-[.97]"
+        style="letter-spacing:.08em">
+        <i data-lucide="file-plus" class="w-4 h-4"></i>
+        NOUVEAU CONTRAT
+      </button>
+      <a href="https://docs.google.com/spreadsheets/d/1r7r-gP6DHKR28y30KJLH_QpYwUHIu7dDpbD5R-rdrY0/edit?gid=0#gid=0"
+         target="_blank" rel="noopener"
+         class="flex items-center justify-center gap-2 rounded-xl border border-neutral-800 hover:border-neutral-700 hover:bg-neutral-800/60 text-neutral-500 hover:text-neutral-300 text-xs font-medium py-2.5 px-3.5 transition-all duration-150">
+        <i data-lucide="table-2" class="w-3.5 h-3.5 shrink-0"></i>
+        <span>Tableau Google Sheets</span>
+        <i data-lucide="external-link" class="w-3 h-3 ml-auto shrink-0 opacity-50"></i>
+      </a>
+    </div>
+
+  </div>
+  </div><!-- /wrapper -->
+  </div><!-- /#screen-home -->
+
+  <!-- ── IDENTITÉ ── -->
   <div id="screen-identite" class="screen">
-    <div class="card">
-      <button class="btn-back" onclick="goTo('screen-home')">← Retour</button>
-      <div class="step-indicator">
-        <div class="step-dot active"></div>
-        <div class="step-dot"></div>
-        <div class="step-dot"></div>
+    <div class="w-full max-w-sm rounded-2xl border border-neutral-800 bg-neutral-900 p-6 flex flex-col gap-5 animate-fadeUp">
+
+      <!-- Nav -->
+      <div class="flex items-center justify-between">
+        <button onclick="goTo('screen-home')"
+          class="flex items-center gap-1.5 text-neutral-500 hover:text-neutral-200 text-xs font-medium transition-colors">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          Retour
+        </button>
+        <span class="text-xs text-neutral-600 font-medium">Étape 1 / 3</span>
       </div>
-      <h2>Identité du client</h2>
-      <div class="input-row">
-        <div class="input-wrapper">
-          <label class="field-label" for="prenom-input">Prénom</label>
-          <input type="text" id="prenom-input" placeholder="Ex : Daniel" autocomplete="off" autocapitalize="words" />
+
+      <!-- Progress -->
+      <div class="h-0.5 bg-neutral-800 rounded-full overflow-hidden">
+        <div class="h-full bg-emerald-500 rounded-full w-1/3 transition-all duration-300"></div>
+      </div>
+
+      <div>
+        <h2 class="text-base font-semibold tracking-tight">Identité du client</h2>
+        <p class="text-xs text-neutral-500 mt-0.5">Prénom et nom de famille</p>
+      </div>
+
+      <!-- Champs -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label for="nom-input" class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wide">Nom</label>
+          <input id="nom-input" type="text" placeholder="Lorus"
+            autocomplete="family-name" autocapitalize="words"
+            class="w-full rounded-lg bg-[#0f0f0f] border border-neutral-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-neutral-100 placeholder:text-neutral-700 px-3 py-2.5 outline-none transition-all font-medium" />
         </div>
-        <div class="input-wrapper">
-          <label class="field-label" for="nom-input">Nom</label>
-          <input type="text" id="nom-input" placeholder="Ex : Lorus" autocomplete="off" autocapitalize="words" />
+        <div class="flex flex-col gap-1.5">
+          <label for="prenom-input" class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wide">Prénom</label>
+          <input id="prenom-input" type="text" placeholder="Daniel"
+            autocomplete="given-name" autocapitalize="words"
+            class="w-full rounded-lg bg-[#0f0f0f] border border-neutral-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-neutral-100 placeholder:text-neutral-700 px-3 py-2.5 outline-none transition-all font-medium" />
         </div>
       </div>
-      <div id="error-identite" class="error-msg hidden"></div>
-      <button class="btn btn-primary" onclick="submitIdentite()">Suivant →</button>
-    </div>
-  </div>
 
-  <!-- ÉCRAN 3 : Matricule -->
-  <div id="screen-matricule" class="screen">
-    <div class="card">
-      <button class="btn-back" onclick="goTo('screen-identite')">← Retour</button>
-      <div class="step-indicator">
-        <div class="step-dot done"></div>
-        <div class="step-dot active"></div>
-        <div class="step-dot"></div>
+      <!-- Erreur -->
+      <div id="error-identite" class="hidden items-center gap-2 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2.5 text-xs text-red-400">
+        <i data-lucide="circle-alert" class="w-3.5 h-3.5 shrink-0"></i>
+        <span id="error-identite-text"></span>
       </div>
-      <h2>Matricule</h2>
-      <p class="hint">Ex : M-02 · CP-23 · R1</p>
-      <div class="input-wrapper input-big">
-        <input type="text" id="matricule-input" placeholder="M-02" autocomplete="off" autocapitalize="characters" />
-      </div>
-      <div id="error-matricule" class="error-msg hidden"></div>
-      <button class="btn btn-primary" onclick="submitMatricule()">Suivant →</button>
-    </div>
-  </div>
 
-  <!-- ÉCRAN 4 : Durée -->
-  <div id="screen-duree" class="screen">
-    <div class="card">
-      <button class="btn-back" onclick="goTo('screen-matricule')">← Retour</button>
-      <div class="step-indicator">
-        <div class="step-dot done"></div>
-        <div class="step-dot done"></div>
-        <div class="step-dot active"></div>
-      </div>
-      <h2>Durée du contrat</h2>
-      <div class="btn-group-grid">
-        <button class="btn btn-duree" onclick="submitDuree(1)">
-          <span class="duree-val">1h</span>
-          <span class="prix-tag">15 000 $</span>
-        </button>
-        <button class="btn btn-duree" onclick="submitDuree(2)">
-          <span class="duree-val">2h</span>
-          <span class="prix-tag">30 000 $</span>
-        </button>
-        <button class="btn btn-duree" onclick="submitDuree(3)">
-          <span class="duree-val">3h</span>
-          <span class="prix-tag">45 000 $</span>
-        </button>
-        <button class="btn btn-duree" onclick="submitDuree(4)">
-          <span class="duree-val">4h</span>
-          <span class="prix-tag">60 000 $</span>
-        </button>
-        <button class="btn btn-duree" onclick="submitDuree(5)">
-          <span class="duree-val">5h</span>
-          <span class="prix-tag">75 000 $</span>
-        </button>
-        <button class="btn btn-duree" onclick="submitDuree(6)">
-          <span class="duree-val">6h</span>
-          <span class="prix-tag">90 000 $</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ÉCRAN 5 : Succès -->
-  <div id="screen-success" class="screen">
-    <div class="card">
-      <div class="success-icon">✅</div>
-      <h2>Contrat enregistré<br />avec succès !</h2>
-      <div id="success-details" class="success-details"></div>
-      <button class="btn btn-new" onclick="restart()">
-        + Nouveau contrat
+      <button onclick="submitIdentite()"
+        class="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm py-3 transition-all duration-150 active:scale-[.98]">
+        Continuer
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
       </button>
     </div>
   </div>
 
-  <!-- SPINNER -->
-  <div id="spinner" class="spinner-overlay hidden">
-    <div class="spinner"></div>
-    <p>Enregistrement…</p>
+  <!-- ── MATRICULE ── -->
+  <div id="screen-matricule" class="screen">
+    <div class="w-full max-w-sm rounded-2xl border border-neutral-800 bg-neutral-900 p-6 flex flex-col gap-5 animate-fadeUp">
+
+      <div class="flex items-center justify-between">
+        <button onclick="goTo('screen-identite')"
+          class="flex items-center gap-1.5 text-neutral-500 hover:text-neutral-200 text-xs font-medium transition-colors">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          Retour
+        </button>
+        <span class="text-xs text-neutral-600 font-medium">Étape 2 / 3</span>
+      </div>
+
+      <div class="h-0.5 bg-neutral-800 rounded-full overflow-hidden">
+        <div class="h-full bg-emerald-500 rounded-full w-2/3 transition-all duration-300"></div>
+      </div>
+
+      <div>
+        <h2 class="text-base font-semibold tracking-tight">Matricule</h2>
+        <p class="text-xs text-neutral-500 mt-0.5">Code d'accès terrain</p>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label for="matricule-input" class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wide">Code matricule</label>
+        <input id="matricule-input" type="text" placeholder="M-02"
+          autocomplete="off" autocapitalize="characters"
+          class="w-full rounded-lg bg-[#0f0f0f] border border-neutral-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-2xl font-bold text-center tracking-widest text-neutral-100 placeholder:text-neutral-700 placeholder:font-normal placeholder:tracking-normal placeholder:text-lg px-3 py-4 outline-none transition-all" />
+        <p class="text-center text-[11px] text-neutral-600">M-02 &nbsp;·&nbsp; CP-23 &nbsp;·&nbsp; R1</p>
+      </div>
+
+      <div id="error-matricule" class="hidden items-center gap-2 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2.5 text-xs text-red-400">
+        <i data-lucide="circle-alert" class="w-3.5 h-3.5 shrink-0"></i>
+        <span id="error-matricule-text"></span>
+      </div>
+
+      <button onclick="submitMatricule()"
+        class="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm py-3 transition-all duration-150 active:scale-[.98]">
+        Continuer
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </button>
+    </div>
   </div>
 
+  <!-- ── DURÉE ── -->
+  <div id="screen-duree" class="screen">
+    <div class="w-full max-w-sm rounded-2xl border border-neutral-800 bg-neutral-900 p-6 flex flex-col gap-5 animate-fadeUp">
+
+      <div class="flex items-center justify-between">
+        <button onclick="goTo('screen-matricule')"
+          class="flex items-center gap-1.5 text-neutral-500 hover:text-neutral-200 text-xs font-medium transition-colors">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          Retour
+        </button>
+        <span class="text-xs text-neutral-600 font-medium">Étape 3 / 3</span>
+      </div>
+
+      <div class="h-0.5 bg-neutral-800 rounded-full overflow-hidden">
+        <div class="h-full bg-emerald-500 rounded-full w-full transition-all duration-300"></div>
+      </div>
+
+      <div>
+        <h2 class="text-base font-semibold tracking-tight">Durée du contrat</h2>
+        <p class="text-xs text-neutral-500 mt-0.5">15 000 $ par heure</p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <button onclick="submitDuree(1)" class="dur-btn group rounded-xl border border-neutral-800 hover:border-emerald-500/50 hover:bg-emerald-500/5 bg-[#0f0f0f] p-4 flex flex-col items-center gap-1 transition-all duration-150 active:scale-[.96]">
+          <span class="text-lg font-bold text-neutral-100 group-hover:text-emerald-400 transition-colors">1h</span>
+          <span class="text-[10px] text-neutral-600 font-medium">15 000 $</span>
+        </button>
+        <button onclick="submitDuree(2)" class="dur-btn group rounded-xl border border-neutral-800 hover:border-emerald-500/50 hover:bg-emerald-500/5 bg-[#0f0f0f] p-4 flex flex-col items-center gap-1 transition-all duration-150 active:scale-[.96]">
+          <span class="text-lg font-bold text-neutral-100 group-hover:text-emerald-400 transition-colors">2h</span>
+          <span class="text-[10px] text-neutral-600 font-medium">30 000 $</span>
+        </button>
+        <button onclick="submitDuree(3)" class="dur-btn group rounded-xl border border-neutral-800 hover:border-emerald-500/50 hover:bg-emerald-500/5 bg-[#0f0f0f] p-4 flex flex-col items-center gap-1 transition-all duration-150 active:scale-[.96]">
+          <span class="text-lg font-bold text-neutral-100 group-hover:text-emerald-400 transition-colors">3h</span>
+          <span class="text-[10px] text-neutral-600 font-medium">45 000 $</span>
+        </button>
+        <button onclick="submitDuree(4)" class="dur-btn group rounded-xl border border-neutral-800 hover:border-emerald-500/50 hover:bg-emerald-500/5 bg-[#0f0f0f] p-4 flex flex-col items-center gap-1 transition-all duration-150 active:scale-[.96]">
+          <span class="text-lg font-bold text-neutral-100 group-hover:text-emerald-400 transition-colors">4h</span>
+          <span class="text-[10px] text-neutral-600 font-medium">60 000 $</span>
+        </button>
+        <button onclick="submitDuree(5)" class="dur-btn group rounded-xl border border-neutral-800 hover:border-emerald-500/50 hover:bg-emerald-500/5 bg-[#0f0f0f] p-4 flex flex-col items-center gap-1 transition-all duration-150 active:scale-[.96]">
+          <span class="text-lg font-bold text-neutral-100 group-hover:text-emerald-400 transition-colors">5h</span>
+          <span class="text-[10px] text-neutral-600 font-medium">75 000 $</span>
+        </button>
+        <button onclick="submitDuree(6)" class="dur-btn group rounded-xl border border-neutral-800 hover:border-emerald-500/50 hover:bg-emerald-500/5 bg-[#0f0f0f] p-4 flex flex-col items-center gap-1 transition-all duration-150 active:scale-[.96]">
+          <span class="text-lg font-bold text-neutral-100 group-hover:text-emerald-400 transition-colors">6h</span>
+          <span class="text-[10px] text-neutral-600 font-medium">90 000 $</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUCCÈS ── -->
+  <div id="screen-success" class="screen">
+    <div class="w-full max-w-sm rounded-2xl border border-neutral-800 bg-neutral-900 p-6 flex flex-col gap-5 animate-fadeUp">
+
+      <!-- Icône -->
+      <div class="flex flex-col items-center gap-3 py-2">
+        <div class="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center animate-pop">
+          <i data-lucide="check" class="w-5 h-5 text-emerald-400"></i>
+        </div>
+        <div class="text-center">
+          <p class="text-sm font-semibold">Contrat enregistré</p>
+          <p class="text-xs text-neutral-500 mt-0.5">Ajouté au tableau avec succès</p>
+        </div>
+      </div>
+
+      <!-- Reçu -->
+      <div id="success-details" class="rounded-xl border border-neutral-800 bg-[#0f0f0f] overflow-hidden text-sm divide-y divide-neutral-800"></div>
+
+      <button onclick="restart()"
+        class="w-full flex items-center justify-center gap-2 rounded-xl border border-neutral-800 hover:border-neutral-700 hover:bg-neutral-800/50 text-neutral-400 hover:text-neutral-200 font-medium text-sm py-3 transition-all duration-150 active:scale-[.98]">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        Nouveau contrat
+      </button>
+    </div>
+  </div>
+
+  <!-- ── SPINNER ── -->
+  <div id="spinner" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+    <div class="flex flex-col items-center gap-3">
+      <div class="w-8 h-8 rounded-full border-2 border-neutral-800 border-t-emerald-500 animate-spin"></div>
+      <span class="text-xs text-neutral-500">Enregistrement…</span>
+    </div>
+  </div>
+
+  <script>
+    function initIcons() { if (window.lucide) lucide.createIcons(); }
+    document.addEventListener('DOMContentLoaded', initIcons);
+
+    const audio = document.getElementById('bg-audio');
+    audio.volume = 1.0;
+
+    function fmtTime(s) {
+      if (isNaN(s)) return '0:00';
+      const m  = Math.floor(s / 60);
+      const ss = String(Math.floor(s % 60)).padStart(2, '0');
+      return m + ':' + ss;
+    }
+
+    function toggleAudio() {
+      if (audio.paused) {
+        audio.play();
+        document.getElementById('play-icon').setAttribute('data-lucide', 'pause');
+      } else {
+        audio.pause();
+        document.getElementById('play-icon').setAttribute('data-lucide', 'play');
+      }
+      lucide.createIcons();
+    }
+
+    function seekAudio(e) {
+      const bar  = document.getElementById('seek-bar');
+      const rect = bar.getBoundingClientRect();
+      const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      if (audio.duration) audio.currentTime = pct * audio.duration;
+    }
+
+    audio.addEventListener('loadedmetadata', () => {
+      document.getElementById('audio-total').textContent = fmtTime(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      document.getElementById('seek-fill').style.width = pct + '%';
+      document.getElementById('seek-thumb').style.left = pct + '%';
+      document.getElementById('audio-current').textContent = fmtTime(audio.currentTime);
+    });
+
+    function setVolume(e) {
+      const bar  = document.getElementById('vol-bar');
+      const rect = bar.getBoundingClientRect();
+      const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      audio.volume = pct;
+      audio.muted  = false;
+      updateVolUI(pct);
+    }
+
+    function toggleMute() {
+      audio.muted = !audio.muted;
+      updateVolUI(audio.muted ? 0 : audio.volume);
+    }
+
+    function updateVolUI(pct) {
+      document.getElementById('vol-fill').style.width = (pct * 100) + '%';
+      document.getElementById('vol-thumb').style.left = (pct * 100) + '%';
+      const icon = document.getElementById('vol-icon');
+      icon.setAttribute('data-lucide', pct === 0 ? 'volume-x' : pct < 0.5 ? 'volume-1' : 'volume-2');
+      lucide.createIcons();
+    }
+  </script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 // ── Configuration ───────────────────────────────────────────────
 // Remplacez par l'URL de déploiement de votre Apps Script
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwGDJsp9PIV9KPtWbB1M60vQo0p6wpIAa8VoAEuoUy93ENjTEdiRixBZkBoXJPzr_c63Q/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz3Wpuay8690zH50TiuCJOVjHLGGgs63JHtFo88WMLe0PohkICUmFjFxmMKm_J3HkSR4w/exec';
 
 // ── État ─────────────────────────────────────────────────────────
 let state = { prenom: '', nom: '', matricule: '', duree: 0 };
@@ -9,6 +9,7 @@ let state = { prenom: '', nom: '', matricule: '', duree: 0 };
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  if (window.lucide) lucide.createIcons();
 }
 
 function goTo(id) {
@@ -123,20 +124,32 @@ function showSuccess(date, heureDebut, heureFin, temps, prix) {
 
   const prixFmt = prix.toLocaleString('fr-FR') + ' $';
 
+  const row = (label, val, accent = false) =>
+    `<div class="flex items-center justify-between px-3.5 py-2.5">
+       <span class="text-xs text-neutral-500 font-medium">${label}</span>
+       <span class="text-xs font-semibold ${accent ? 'text-emerald-400' : 'text-neutral-200'}">${val}</span>
+     </div>`;
+
   document.getElementById('success-details').innerHTML =
-    `<strong>${state.prenom} ${state.nom}</strong><br>
-     Matricule : ${state.matricule}<br>
-     Date : ${date}<br>
-     ${heureDebut} → ${heureFin} &nbsp;(${temps})<br>
-     <span class="prix-highlight">${prixFmt}</span>`;
+    row('Client',  `${state.prenom} ${state.nom}`) +
+    row('Matricule', state.matricule) +
+    row('Date',    date) +
+    row('Horaire', `${heureDebut} → ${heureFin}`) +
+    row('Durée',   temps) +
+    `<div class="flex items-center justify-between px-3.5 py-3 bg-emerald-500/5 border-t border-emerald-500/10">
+       <span class="text-xs text-neutral-400 font-semibold">Montant</span>
+       <span class="text-sm font-bold text-emerald-400">${prixFmt}</span>
+     </div>`;
 
   showScreen('screen-success');
 }
 
 // ── Helpers ──────────────────────────────────────────────────────
 function showError(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg;
+  const el   = document.getElementById(id);
+  const span = document.getElementById(id + '-text');
+  if (span) span.textContent = msg;
+  else el.textContent = msg;
   el.classList.remove('hidden');
 }
 
