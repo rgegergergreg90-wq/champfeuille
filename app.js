@@ -24,7 +24,7 @@ function startContract() {
   document.getElementById('matricule-input').value = '';
   state = { prenom: '', nom: '', matricule: '', duree: 0 };
   showScreen('screen-identite');
-  setTimeout(() => document.getElementById('prenom-input').focus(), 100);
+  setTimeout(() => document.getElementById('nom-input').focus(), 100);
 }
 
 function restart() {
@@ -179,10 +179,10 @@ function capitalize(s) {
 // ── Touches Entrée ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('nom-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') submitIdentite();
+    if (e.key === 'Enter') document.getElementById('prenom-input').focus();
   });
   document.getElementById('prenom-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('nom-input').focus();
+    if (e.key === 'Enter') submitIdentite();
   });
   document.getElementById('matricule-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') submitMatricule();
